@@ -1,61 +1,50 @@
 # SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
-"""Simple test for 16x2 character lcd connected to an MCP23008 I2C LCD backpack."""
 import time
 import board
 import busio
-import adafruit_character_lcd.character_lcd_i2c as character_lcd
+from adafruit_apds9960.apds9960 import APDS9960
+from rainbowio import colorwheel
+import neopixel
 
-# Modify this if you have a different sized Character LCD
-lcd_columns = 16
-lcd_rows = 2
+# Update this to match the number of NeoPixel LEDs connected to your board.
+num_pixels = 50
+
+pixels = neopixel.NeoPixel(board.GP28, num_pixels)
+pixels.brightness = 0.5
+
+def rainbow(speed):
+    for j in range(255):
+        for i in range(num_pixels):
+            pixel_index = (i * 256 // num_pixels) + j
+            pixels[i] = colorwheel(pixel_index & 255)
+        pixels.show()
+        time.sleep(speed)
 
 # Initialise I2C bus.
 i2c = busio.I2C(board.GP1, board.GP0)
 
-# Initialise the lcd class
-lcd = character_lcd.Character_LCD_I2C(i2c, lcd_columns, lcd_rows)
+apds = APDS9960(i2c)
+apds.enable_proximity = True
+apds.enable_gesture = True
 
-# Turn backlight on
-lcd.backlight = True
-# Print a two line message
-lcd.message = "Hello\nCircuitPython"
-# Wait 5s
-time.sleep(5)
-lcd.clear()
-# Print two line message right to left
-lcd.text_direction = lcd.RIGHT_TO_LEFT
-lcd.message = "Hello\nCircuitPython"
-# Wait 5s
-time.sleep(5)
-# Return text direction to left to right
-lcd.text_direction = lcd.LEFT_TO_RIGHT
-# Display cursor
-lcd.clear()
-lcd.cursor = True
-lcd.message = "Cursor! "
-# Wait 5s
-time.sleep(5)
-# Display blinking cursor
-lcd.clear()
-lcd.blink = True
-lcd.message = "Blinky Cursor!"
-# Wait 5s
-time.sleep(5)
-lcd.blink = False
-lcd.clear()
-# Create message to scroll
-scroll_msg = "<-- Scroll"
-lcd.message = scroll_msg
-# Scroll message to the left
-for i in range(len(scroll_msg)):
-    time.sleep(0.5)
-    lcd.move_left()
-lcd.clear()
-lcd.message = "Going to sleep\nCya later!"
-time.sleep(5)
-# Turn backlight off
-lcd.backlight = False
-time.sleep(2)
+# Uncomment and set the rotation if depending on how your sensor is mounted.
+# apds.rotation = 270 # 270 for CLUE
 
+while True:
+    gesture = apds.gesture()
+
+    if gesture == 0x01:
+        print("up")
+        rainbow(0)
+    elif gesture == 0x02:
+        print("down")
+        pixels.fill((0, 0, 255))
+    elif gesture == 0x03:
+        print("left")
+        pixels.fill((0, 255, 0))
+    elif gesture == 0x04:
+        print("right")
+        pixels.fill((255, 0, 0))
+# Write your code here :-)
