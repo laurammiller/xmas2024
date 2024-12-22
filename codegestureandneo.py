@@ -1,18 +1,18 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 import time
 import board
 import busio
 from adafruit_apds9960.apds9960 import APDS9960
 from rainbowio import colorwheel
 import neopixel
-from audiocore import WaveFile
-from audiopwmio import PWMAudioOut as AudioOut
 
 # Update this to match the number of NeoPixel LEDs connected to your board.
 num_pixels = 50
 
 pixels = neopixel.NeoPixel(board.GP28, num_pixels)
 pixels.brightness = 0.5
-pixels.fill((0, 0, 255))
 
 def rainbow(speed):
     for j in range(255):
@@ -32,16 +32,6 @@ apds.enable_gesture = True
 # Uncomment and set the rotation if depending on how your sensor is mounted.
 # apds.rotation = 270 # 270 for CLUE
 
-audio = AudioOut(board.GP2)
-path = "sounds/"
-
-def play_sound(filename):
-    with open(path + filename, "rb") as wave_file:
-        wave = WaveFile(wave_file)
-        audio.play(wave)
-        while audio.playing:
-            pass
-
 while True:
     gesture = apds.gesture()
 
@@ -51,13 +41,10 @@ while True:
     elif gesture == 0x02:
         print("down")
         pixels.fill((0, 0, 255))
-        play_sound("wand.wav")
     elif gesture == 0x03:
         print("left")
         pixels.fill((0, 255, 0))
-        play_sound("encouragement1.wav")
     elif gesture == 0x04:
         print("right")
         pixels.fill((255, 0, 0))
-        play_sound("encouragement2.wav")
 # Write your code here :-)
