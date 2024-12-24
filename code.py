@@ -105,7 +105,6 @@ def redgreen():
     color_chase(GREEN, 0.02)
 
 def candycane():
-    color_chase(RED, 0.02)
     color_chase(WHITE, 0.02)
     color_chase(PINK, 0.02)
 
@@ -128,9 +127,9 @@ def grinch():
 
 def snow():
     pixels.fill(WHITE)
-    time.sleep(0.05)
+    time.sleep(1)
     pixels.fill(BLUE)
-    time.sleep(0.05)
+    time.sleep(1)
 Flag = False
 
 while True:
@@ -154,7 +153,7 @@ while True:
         print("left")
         pixels.fill((0, 255, 0))
         if Flag:
-            play("JingleRock.mp3", 4)
+            play("JingleRock.mp3", 3)
         else:
             play("Bing.mp3", 7)
     elif gesture == 0x04:
