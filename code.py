@@ -42,12 +42,50 @@ def play_sound(filename):
         while audio.playing:
             pass
 
+from audiomp3 import MP3Decoder
+
+try:
+    from audioio import AudioOut
+except ImportError:
+    try:
+        from audiopwmio import PWMAudioOut as AudioOut
+    except ImportError:
+        pass  # not always supported by every board!
+
+mp3file = "EPBlue8.mp3"
+mp3 = open(path + mp3file, "rb")
+decoder = MP3Decoder(mp3)
+
+def play(filename):
+    with open(path + filename, "rb") as mp3:
+        decoder.file = mp3
+        audio.play(decoder)
+
+def color_chase(color, wait):
+    for i in range(num_pixels):
+        pixels[i] = color
+        time.sleep(wait)
+        pixels.show()
+    time.sleep(0.5)
+BLUE = (0, 255, 0)
+RED = (0, 0, 255)
+WHITE = (255, 255, 255)
+GREEN = (255, 0, 0)
+
 while True:
     gesture = apds.gesture()
 
     if gesture == 0x01:
         print("up")
-        rainbow(0)
+        color_chase(BLUE, 0.01)
+        #play("EPBlue8.mp3")
+        mp3 = open(path + "EPBlue8.mp3", "rb")
+        decoder.file = mp3
+        audio.play(decoder)
+        while audio.playing:
+            pass
+            color_chase(WHITE, 0.1)
+            color_chase(BLUE, 0.1)
     elif gesture == 0x02:
         print("down")
         pixels.fill((0, 0, 255))
